@@ -12,7 +12,6 @@ function afficherErreur($message) {
     exit;
 }
 
-// Si formulaire envoyé
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $keys = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
     $result = "# Fichier chiffré - Généré automatiquement\n\n";
@@ -22,17 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result .= "# 1. Copiez les lignes de ce fichier dans votre fichier .env.\n";
     $result .= "# 2. Déchiffrez les valeurs dans votre application avec les clés associées.\n\n";
 
+    $master_key = random_bytes(32);
+    $master_key_base64 = base64_encode($master_key);
+
     foreach ($keys as $key) {
         $value = $_POST[$key] ?? '';
 
-        // Générer une clé aléatoire 32 octets, puis base64
         $binary_key = random_bytes(32);
         $base64_key = base64_encode($binary_key);
 
-        $iv = random_bytes(12); // 96 bits pour AES-GCM
+        $iv = random_bytes(12);
         $tag = '';
 
-        // Chiffrement des données
         $encrypted = openssl_encrypt(
             $value,
             'aes-256-gcm',
@@ -46,25 +46,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             afficherErreur("❌ Erreur de chiffrement pour $key.");
         }
 
-        // Ajouter les éléments chiffrés avec des commentaires
-        $result .= "# " . $key . " : valeur chiffrée\n";
-        $result .= "{$key}_ENC=" . base64_encode($encrypted) . "\n";
+        $result .= "# $key : valeur chiffrée\n";
+        $result .= "{$key}_ENC=\"" . base64_encode($encrypted) . "\"\n";
         $result .= "# IV (initialisation vector) pour le chiffrement :\n";
-        $result .= "{$key}_IV="  . base64_encode($iv)        . "\n";
+        $result .= "{$key}_IV=\"" . base64_encode($iv) . "\"\n";
         $result .= "# TAG pour garantir l'intégrité des données chiffrées :\n";
-        $result .= "{$key}_TAG=" . base64_encode($tag)       . "\n";
+        $result .= "{$key}_TAG=\"" . base64_encode($tag) . "\"\n";
         $result .= "# Clé utilisée pour le chiffrement (à garder secrète) :\n";
-        $result .= "{$key}_KEY=" . $base64_key               . "\n\n"; // ➔ Ajouter aussi la clé
-
+        $result .= "{$key}_KEY=\"" . $base64_key . "\"\n\n";
     }
 
-    // Télécharger le fichier avec les commentaires
+    $result .= "\n# !!! NE JAMAIS METTRE LA CLÉ DE DÉCHIFFREMENT DANS VOTRE FICHIER .ENV !!!\n";
+    $result .= "# La clé de déchiffrement principale (utilisée pour déchiffrer les valeurs chiffrées) :\n";
+    $result .= "# MASTER_KEY=\"" . $master_key_base64 . "\"\n";
+
     header('Content-Type: text/plain');
     header('Content-Disposition: attachment; filename="env_chiffre.txt"');
     echo $result;
     exit;
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">
