@@ -47,18 +47,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $result .= "# $key : valeur chiffrée\n";
-        $result .= "{$key}_ENC=\"" . base64_encode($encrypted) . "\"\n";
+        $result .= "{$key}_ENC=" . base64_encode($encrypted) . "\n";
         $result .= "# IV (initialisation vector) pour le chiffrement :\n";
-        $result .= "{$key}_IV=\"" . base64_encode($iv) . "\"\n";
+        $result .= "{$key}_IV=" . base64_encode($iv) . "\n";
         $result .= "# TAG pour garantir l'intégrité des données chiffrées :\n";
-        $result .= "{$key}_TAG=\"" . base64_encode($tag) . "\"\n";
+        $result .= "{$key}_TAG=" . base64_encode($tag) . "\n";
         $result .= "# Clé utilisée pour le chiffrement (à garder secrète) :\n";
-        $result .= "{$key}_KEY=\"" . $base64_key . "\"\n\n";
+        $result .= "{$key}_KEY=" . $base64_key . "\n\n";
     }
 
     $result .= "\n# !!! NE JAMAIS METTRE LA CLÉ DE DÉCHIFFREMENT DANS VOTRE FICHIER .ENV !!!\n";
     $result .= "# La clé de déchiffrement principale (utilisée pour déchiffrer les valeurs chiffrées) :\n";
-    $result .= "# MASTER_KEY=\"" . $master_key_base64 . "\"\n";
+    $result .= "# MASTER_KEY=" . $master_key_base64 . "\n";
 
     header('Content-Type: text/plain');
     header('Content-Disposition: attachment; filename="env_chiffre.txt"');
@@ -66,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="fr">
