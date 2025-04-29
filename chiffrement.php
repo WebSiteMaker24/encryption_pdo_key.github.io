@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body>
     <h2>🔐 Générer automatiquement les clés et chiffrer</h2>
+    <p>Mettez vos 4 clés de connexion PDO </br> cliquez sur télécharger pour recevoir un fichier txt prêt à être inclu dans votre fichier .env</p>
     <form method="POST" autocomplete="off">
         <?php
         foreach (['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'] as $key) {
